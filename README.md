@@ -39,10 +39,15 @@ $command = escapeshellcmd($cmd);
       
 $shelloutput = shell_exec($command);
 ```
-Enfin, je met dans la session l'id de l'utilisateur et je redirige vers la page service.
+Enfin, je met dans la session l'id de l'utilisateur, je vérifie si la connection est autorisée, et suivant le résultat,je redirige vers la page service.
 ```
 $_SESSION["id"]=$username;
 var_dump($shelloutput);
+ if(strpos($shelloutput,"not")!="false"){
+   echo $shelloutput;
+}else {
+   header('location: services.php');
+}
        
 header('location: services.php');
 ```
@@ -84,7 +89,66 @@ Sinon, je peux inserer dans Redis et autoriser la connection.
         print("{id} authorized to connect. Time to 10th connection :", check)
 ```
 
+## Stocker dans la bdd 1 de Redis les appels à un service
 
+Ici, on va retrouver le meme fonctionnement que pour la partie précédente.
 
+### Partie PHP
+
+Je cree deux formulaires qui ont uniquement un bouton de validation.
+
+Puis, quand j'appuis sur un de ces deux boutons , j'appele un script python qui va s'occuper d'ajouter l'appel au service à Redis. Je lui passe en argument l'id de l'utilisateur et le nom du service.
+
+```
+if (isset($_POST['form1'])) {
+ 
+  $cmd = "C:\Users\\etien\AppData\Local\Programs\Python\Python310\python.exe main2.py '".$_SESSION["id"]."' 'Vente' ";
+        
+  $command = escapeshellcmd($cmd);
+
+  $shelloutput = shell_exec($command);
+
+  echo "Vente effectuer";
+  #header('location: services.php');
+}
+```
+
+### Partie Python
+
+Je récupère les deux arguments et je push une liste contenant ces deux arguments insi que la date d'ajout.
+
+```
+id=sys.argv[1]
+type_service=sys.argv[2]
+
+r.lpush(f"id:{id} type:{type_service}", time.time())
+```
+
+## Des statistiques 
+Je n'ai pas eu le temps de réellement faire cette partie, je n'ai fais que le début. Je cherche à afficher le top 10 des utilisateurs qui ont le plus de connection.
+
+Dans une page stats.php ( accessible en la mettant dans l'url ) , je veux afficher ces stats. J'appelle une nouvelle fois un script python.
+
+Dans ce script, je récupere toutes les listes présente dans la bdd 0 de Redis. Je trie ma liste de liste par ordre décroissant sur le nombre de connection, puis je construis une liste du top 10.
+
+```
+tab_res=[]
+for x in r.keys("conn:*"):
+
+    tab_res.append([x,r.llen(x)])
+
+tab_res.sort(key=lambda x: x[1], reverse=True)
+tab_res2=[]
+
+if(len(tab_res)<10):
+
+    for x in range(len(tab_res)):
+        tab_res2.append([tab_res[x][0],tab_res[x][1]])
+        
+else:
+    for x in range(10):
+        tab_res2.append([tab_res[x][0],tab_res[x][1]])
+        
+```
 
 
