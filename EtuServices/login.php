@@ -26,9 +26,14 @@ if(isset($_POST['submit'])) {
       
         $shelloutput = shell_exec($command);
         $_SESSION["id"]=$username;
-        var_dump($shelloutput);
+    
+        if(strpos($shelloutput,"not")!="false"){
+          echo $shelloutput;
+        }else {
+           header('location: services.php');
+        }
        
-        header('location: services.php');
+       
         
     } else {
         echo "ERROR";
