@@ -1,5 +1,5 @@
 # TP1_INFO834
-Le but de ce TP est de prendre en main redis .
+Le but de ce TP est de prendre en main Redis .
 
 ## Création de la BDD MySQL,Redis et des fichiers de base
 
@@ -7,11 +7,11 @@ Pour la BDD MySQL, j'ai crée une seule table utilisateur, avec ces champs : nom
 
 Suite à cela j'ai crée la base du site web en ajoutant les fichiers PHP demandés ,avec un peu de CSS.
 
-On va retrouver une page d'accueil, ou l'on peut clikcer pour se connecter, ainsi que d'autre pages qui seront détaillés ci-dessous.
+On va retrouver une page d'accueil, où l'on peut clicker pour se connecter, ainsi que d'autre pages qui seront détaillés ci-dessous.
 
 ## Système de connection et gestion de l'accés à Redis
 
-Une fois la base créee, il faut s'occuper du système de connection, qui va se découper en deux parties, une coté PHP, et une autre coté Python. Il faut aussi prendre en compte que l'on veut que l'utilisateur puisse, au maximum, se connecter 10 fois en 10 minutes. S'il attend ce palier, il devrat attendre 10min avant de pouvoir se re-connecter. Enfin, une fois connecter, l'utilisateur doit etre redirigé vers la page service.
+Une fois la base créee, il faut s'occuper du système de connection, qui va se découper en deux parties, un coté PHP, et un autre coté Python. Il faut aussi prendre en compte que l'on veut que l'utilisateur puisse, au maximum, se connecter 10 fois en 10 minutes. S'il attend ce palier, il devrat attendre 10 min avant de pouvoir se re-connecter. Enfin, une fois connecté, l'utilisateur doit etre redirigé vers la page service.
 
 
 ### Coté PHP
@@ -57,14 +57,14 @@ Je commence par me connecter à redis avec cette ligne :
 ```
 r=red.Redis(host="IP",port=6379)
 ```
-Ensuite , je récupere l'argument que j'ai mis dans mon code PHP et j'essaie de récupérer la liste ( c'est ce que j'utiliserais ici ) qui lui correspond dans Redis. S'il n'y a rien , j'ajoute une nouvelle liste avec dedans, l'identifiant ainsi que la date d'ajout.
+Ensuite , je récupere l'argument que j'ai mis dans mon code PHP et j'essaie de récupérer la liste ( c'est ce que j'utiliserais ici ) qui lui correspond dans Redis. S'il n'y a rien , j'ajoute une nouvelle liste avec, dedans, l'identifiant ainsi que la date d'ajout.
 ```
 id = sys.argv[1]
 results = r.lrange(f"conn:{id}", 0, 9)
 if(results==[]):
     r.lpush(f"conn:{id}", time.time())
 ```
-Si la liste existe déja, je vais faire en sorte de récuperer les 10 dernieres connection et de trouver la plus récente avec  sa date d'insertion. Si celle remonte à il y a moins de 10 minutes et que que j'ai bien une liste de 10 élements, j'empeche l'insertion, et donc la connection .
+Si la liste existe déja, je vais faire en sorte de récuperer les 10 dernieres connection et de trouver la plus récente avec sa date d'insertion. Si celle ci remonte à il y a moins de 10 minutes et que que j'ai bien une liste de 10 élements, j'empeche l'insertion, et donc la connection .
 ```
  #print(results)
     connection_times = []
@@ -95,7 +95,7 @@ Ici, on va retrouver le meme fonctionnement que pour la partie précédente.
 
 ### Partie PHP
 
-Je cree deux formulaires qui ont uniquement un bouton de validation.
+Je crée deux formulaires qui ont uniquement un bouton de validation.
 
 Puis, quand j'appuis sur un de ces deux boutons , j'appele un script python qui va s'occuper d'ajouter l'appel au service à Redis. Je lui passe en argument l'id de l'utilisateur et le nom du service.
 
@@ -115,7 +115,7 @@ if (isset($_POST['form1'])) {
 
 ### Partie Python
 
-Je récupère les deux arguments et je push une liste contenant ces deux arguments insi que la date d'ajout.
+Je récupère les deux arguments et je push une liste contenant ces deux arguments ainsi que la date d'ajout.
 
 ```
 id=sys.argv[1]
@@ -125,9 +125,11 @@ r.lpush(f"id:{id} type:{type_service}", time.time())
 ```
 
 ## Des statistiques 
-Je n'ai pas eu le temps de réellement faire cette partie, je n'ai fais que le début. Je cherche à afficher le top 10 des utilisateurs qui ont le plus de connection.
+Je n'ai pas eu le temps de réellement faire cette partie, je n'ai fais que le début. 
 
-Dans une page stats.php ( accessible en la mettant dans l'url ) , je veux afficher ces stats. J'appelle une nouvelle fois un script python.
+Je cherche à afficher le top 10 des utilisateurs qui ont le plus de connection.
+
+Dans une page stats.php ( accessible en la mettant dans l'url ) , je veux afficher cette statistique. J'appelle une nouvelle fois un script python.
 
 Dans ce script, je récupere toutes les listes présente dans la bdd 0 de Redis. Je trie ma liste de liste par ordre décroissant sur le nombre de connection, puis je construis une liste du top 10.
 
@@ -150,5 +152,5 @@ else:
         tab_res2.append([tab_res[x][0],tab_res[x][1]])
         
 ```
-
+Ensuite, je devrais récuper ce résultat dans mon code PHP et m'occuper de l'affichage. Je me suis arreté juste avant l'affichage .
 
