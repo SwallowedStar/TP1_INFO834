@@ -1,4 +1,4 @@
-# TP1_INFO834
+# TP1_INFO834 ( Malacarne Etienne )
 Le but de ce TP est de prendre en main Redis .
 
 ## Création de la BDD MySQL,Redis et des fichiers de base
