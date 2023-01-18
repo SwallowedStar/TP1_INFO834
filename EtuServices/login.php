@@ -19,15 +19,16 @@ if(isset($_POST['submit'])) {
         // Stockage de l'utilisateur dans la session
         $_SESSION['username'] = $username;
         $_SESSION['success'] = "Vous êtes maintenant connecté";
-        #header('location: services.php');
+        
         $cmd = "C:\Users\\etien\AppData\Local\Programs\Python\Python310\python.exe main.py '".$username."' ";
         
         $command = escapeshellcmd($cmd);
       
         $shelloutput = shell_exec($command);
-
+        $_SESSION["id"]=$username;
         var_dump($shelloutput);
-        
+       
+        header('location: services.php');
         
     } else {
         echo "ERROR";
